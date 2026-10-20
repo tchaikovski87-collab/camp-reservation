@@ -130,6 +130,8 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
 .actions { display: flex; gap: 6px; flex-wrap: wrap; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 720px) { .search { grid-template-columns: repeat(2, minmax(0, 1fr)); } .trees { display: none; } }
+.foot { margin-top: 32px; padding: 16px 0 28px; border-top: 1px solid var(--line, #ddd); color: var(--muted); font-size: 14px; text-align: center; line-height: 1.7; }
+.foot b { color: var(--fg); }
 </style>
 </head>
 <body>
@@ -237,6 +239,10 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
     </div>
     </div>
   </section>
+  <footer class="foot">
+    <div>관리자 <b>박준희</b></div>
+    <div>입금 계좌 <b>농협 302-0123-0136-71</b> · 예금주 <b>김은정</b></div>
+  </footer>
 </div>
 
 <div class="overlay" id="modal" hidden>
