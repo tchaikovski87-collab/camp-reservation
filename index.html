@@ -29,6 +29,10 @@ body { margin: 0; }
   --off-bg: #E3E8E5;
   --bad: #B3372E;
   --bad-bg: #F7DEDB;
+  --sky1: #6FB4E3; --sky2: #CFE8F2; --sky3: #FBE9C6; --sun: #FFE08A; --cloud: #FFFFFF;
+  --m3: #9DB9C9; --m2: #6F9AA0; --m1: #3F7A66; --hill: #2F6A4F; --hill2: #24573F;
+  --lake1: #7DBBD6; --lake2: #B9DDE8; --pine: #1D4D38; --pine2: #2A6348; --trunk: #5B4130;
+  --tent1: #E7863F; --tent2: #F4C15B; --tent3: #3E8FB8; --fire: #FF9A2E; --starop: 0;
   --font-display: "Black Han Sans", "Noto Sans KR", sans-serif;
   --font-body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -38,10 +42,18 @@ body { margin: 0; }
     --bg: #0F1B15; --surface: #162720; --surface-2: #1F342B; --fg: #E5EFE9; --muted: #A0B5A9; --line: #2C4538;
     --accent: #5FC79B; --accent-fg: #0B1A12; --auto: #7CC0E6; --glamp: #EBA472;
     --ok: #67D49B; --ok-bg: #173B2A; --pend: #F0C260; --pend-bg: #3F3213; --off: #A0B1A8; --off-bg: #223329; --bad: #F2948C; --bad-bg: #432421;
+    --sky1: #0A1830; --sky2: #1B3550; --sky3: #4A5A66; --sun: #E9EEF5; --cloud: #5C7089;
+    --m3: #2C4258; --m2: #23394A; --m1: #173128; --hill: #12281F; --hill2: #0D1F18;
+    --lake1: #15304A; --lake2: #1F4560; --pine: #0A1C14; --pine2: #10281D; --trunk: #2B2018;
+    --tent1: #C96A2B; --tent2: #D9A340; --tent3: #2F7497; --fire: #FFB04A; --starop: 1;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
+  --sky1: #0A1830; --sky2: #1B3550; --sky3: #4A5A66; --sun: #E9EEF5; --cloud: #5C7089;
+  --m3: #2C4258; --m2: #23394A; --m1: #173128; --hill: #12281F; --hill2: #0D1F18;
+  --lake1: #15304A; --lake2: #1F4560; --pine: #0A1C14; --pine2: #10281D; --trunk: #2B2018;
+  --tent1: #C96A2B; --tent2: #D9A340; --tent3: #2F7497; --fire: #FFB04A; --starop: 1;
   --bg: #0F1B15; --surface: #162720; --surface-2: #1F342B; --fg: #E5EFE9; --muted: #A0B5A9; --line: #2C4538;
   --accent: #5FC79B; --accent-fg: #0B1A12; --auto: #7CC0E6; --glamp: #EBA472;
   --ok: #67D49B; --ok-bg: #173B2A; --pend: #F0C260; --pend-bg: #3F3213; --off: #A0B1A8; --off-bg: #223329; --bad: #F2948C; --bad-bg: #432421;
@@ -132,23 +144,76 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
 @media (max-width: 720px) { .search { grid-template-columns: repeat(2, minmax(0, 1fr)); } .trees { display: none; } }
 .foot { margin-top: 32px; padding: 16px 0 28px; border-top: 1px solid var(--line, #ddd); color: var(--muted); font-size: 14px; text-align: center; line-height: 1.7; }
 .foot b { color: var(--fg); }
+
+/* ---- scenery ---- */
+.bg-fixed { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.bg-fixed svg { width: 100%; height: 100%; display: block; }
+.stars { opacity: var(--starop); }
+.hero { position: relative; height: clamp(230px, 40vw, 360px); border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 8px 28px rgba(10, 30, 20, .22); }
+.hero .scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero-text { position: absolute; left: clamp(16px, 4vw, 36px); top: clamp(16px, 4vw, 34px); right: 16px; color: #fff; text-shadow: 0 2px 10px rgba(5, 25, 40, .55), 0 1px 2px rgba(5, 25, 40, .6); }
+.hero-text h1 { font-family: var(--font-display); font-size: clamp(30px, 7vw, 54px); font-weight: 400; letter-spacing: -0.01em; line-height: 1.15; }
+.hero-text p { font-size: clamp(13px, 2.4vw, 16px); margin-top: 6px; font-weight: 500; }
+.main { margin-top: 16px; background: var(--bg); background: color-mix(in srgb, var(--bg) 90%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+@media (max-width: 720px) { .main { padding: 12px; border-radius: 12px; } }
+.flame { animation: flick 1.4s ease-in-out infinite alternate; transform-origin: 50% 100%; transform-box: fill-box; }
+@keyframes flick { from { transform: scale(1, .92); } to { transform: scale(.94, 1.08); } }
+@media (prefers-reduced-motion: reduce) { .flame { animation: none; } }
 </style>
 </head>
 <body>
+<div class="bg-fixed" aria-hidden="true">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice">
+    <defs><linearGradient id="bSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset=".55" style="stop-color:var(--sky2)"/><stop offset="1" style="stop-color:var(--sky3)"/></linearGradient></defs>
+    <rect width="1200" height="800" fill="url(#bSky)"/>
+    <g class="stars" fill="#fff"><circle cx="140" cy="70" r="1.6"/><circle cx="380" cy="150" r="1.3"/><circle cx="620" cy="60" r="1.8"/><circle cx="880" cy="140" r="1.3"/><circle cx="1090" cy="80" r="1.6"/><circle cx="500" cy="260" r="1.2"/><circle cx="1000" cy="300" r="1.2"/></g>
+    <circle cx="1000" cy="170" r="46" style="fill:var(--sun)" opacity=".9"/>
+    <path d="M0 560 L140 420 L260 500 L420 340 L560 470 L700 380 L860 500 L1000 400 L1200 520 V800 H0z" style="fill:var(--m3)"/>
+    <path d="M0 640 C200 540 360 600 520 620 C700 640 860 560 1020 590 C1110 606 1160 620 1200 610 V800 H0z" style="fill:var(--m2)"/>
+    <path d="M0 720 C240 680 420 700 640 712 C860 724 1040 680 1200 700 V800 H0z" style="fill:var(--hill)"/>
+    <g fill="var(--pine)"><path d="M30 540 L-30.1 657.0 L90.1 657.0z"/><path d="M30 597.2 L-57.4 722.0 L117.4 722.0z"/><path d="M30 664.8 L-79.2 800.0 L139.2 800.0z"/></g><g fill="var(--pine2)"><path d="M110 470 L33.8 618.5 L186.2 618.5z"/><path d="M110 542.6 L-0.9 701.0 L220.9 701.0z"/><path d="M110 628.4 L-28.6 800.0 L248.6 800.0z"/></g><g fill="var(--pine)"><path d="M200 580 L149.2 679.0 L250.8 679.0z"/><path d="M200 628.4 L126.1 734.0 L273.9 734.0z"/><path d="M200 685.6 L107.6 800.0 L292.4 800.0z"/></g><g fill="var(--pine2)"><path d="M300 630 L260.7 706.5 L339.3 706.5z"/><path d="M300 667.4 L242.9 749.0 L357.1 749.0z"/><path d="M300 711.6 L228.6 800.0 L371.4 800.0z"/></g><g fill="var(--pine2)"><path d="M900 620 L858.4 701.0 L941.6 701.0z"/><path d="M900 659.6 L839.5 746.0 L960.5 746.0z"/><path d="M900 706.4 L824.4 800.0 L975.6 800.0z"/></g><g fill="var(--pine)"><path d="M990 560 L934.6 668.0 L1045.4 668.0z"/><path d="M990 612.8 L909.4 728.0 L1070.6 728.0z"/><path d="M990 675.2 L889.2 800.0 L1090.8 800.0z"/></g><g fill="var(--pine2)"><path d="M1080 480 L1006.1 624.0 L1153.9 624.0z"/><path d="M1080 550.4 L972.5 704.0 L1187.5 704.0z"/><path d="M1080 633.6 L945.6 800.0 L1214.4 800.0z"/></g><g fill="var(--pine)"><path d="M1160 520 L1095.3 646.0 L1224.7 646.0z"/><path d="M1160 581.6 L1065.9 716.0 L1254.1 716.0z"/><path d="M1160 654.4 L1042.4 800.0 L1277.6 800.0z"/></g><g fill="var(--pine)"><path d="M1210 440 L1126.8 602.0 L1293.2 602.0z"/><path d="M1210 519.2 L1089.0 692.0 L1331.0 692.0z"/><path d="M1210 612.8 L1058.8 800.0 L1361.2 800.0z"/></g>
+  </svg>
+</div>
 
 <div class="wrap">
-  <header class="top">
-    <div class="brand">
+  <header class="hero">
+    <svg class="scene" viewBox="0 0 1200 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="산과 호수, 소나무 숲 앞에 텐트와 모닥불이 있는 캠핑장 풍경">
+      <defs>
+        <linearGradient id="hSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset=".62" style="stop-color:var(--sky2)"/><stop offset="1" style="stop-color:var(--sky3)"/></linearGradient>
+        <linearGradient id="hLake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--lake2)"/><stop offset="1" style="stop-color:var(--lake1)"/></linearGradient>
+        <radialGradient id="hSun"><stop offset="0" style="stop-color:var(--sun)" stop-opacity="1"/><stop offset=".45" style="stop-color:var(--sun)" stop-opacity=".45"/><stop offset="1" style="stop-color:var(--sun)" stop-opacity="0"/></radialGradient>
+        <radialGradient id="hGlow"><stop offset="0" style="stop-color:var(--fire)" stop-opacity=".55"/><stop offset="1" style="stop-color:var(--fire)" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="1200" height="360" fill="url(#hSky)"/>
+      <g class="stars" fill="#fff"><circle cx="90" cy="40" r="1.6"/><circle cx="210" cy="95" r="1.2"/><circle cx="330" cy="28" r="1.6"/><circle cx="470" cy="70" r="1.2"/><circle cx="560" cy="30" r="1.8"/><circle cx="660" cy="85" r="1.2"/><circle cx="760" cy="26" r="1.5"/><circle cx="1010" cy="60" r="1.4"/><circle cx="1120" cy="110" r="1.2"/><circle cx="1160" cy="34" r="1.6"/></g>
+      <circle cx="930" cy="108" r="120" fill="url(#hSun)"/><circle cx="930" cy="108" r="40" style="fill:var(--sun)"/>
+      <g style="fill:var(--cloud)" opacity=".85"><ellipse cx="790" cy="150" rx="60" ry="11"/><ellipse cx="830" cy="141" rx="34" ry="12"/><ellipse cx="120" cy="150" rx="50" ry="10"/><ellipse cx="1090" cy="64" rx="52" ry="11"/></g>
+      <path d="M0 250 L90 176 L150 214 L260 128 L360 220 L450 168 L560 236 L650 150 L760 232 L850 182 L960 240 L1060 160 L1140 210 L1200 178 V290 H0z" style="fill:var(--m3)"/>
+      <path d="M260 128 L238 156 L256 150 L270 164 L282 148 L296 156z" fill="#fff" opacity=".55"/>
+      <path d="M650 150 L630 176 L646 170 L660 184 L674 168 L688 176z" fill="#fff" opacity=".5"/>
+      <path d="M0 272 C120 220 210 214 330 252 C430 280 520 226 640 232 C760 238 820 270 930 246 C1040 222 1120 236 1200 262 V300 H0z" style="fill:var(--m2)"/>
+      <g fill="var(--m1)"><path d="M300 214 L288.9 235.6 L311.1 235.6z"/><path d="M300 224.6 L283.9 247.6 L316.1 247.6z"/><path d="M300 237.0 L279.8 262.0 L320.2 262.0z"/></g><g fill="var(--m1)"><path d="M322 198 L307.2 226.8 L336.8 226.8z"/><path d="M322 212.1 L300.5 242.8 L343.5 242.8z"/><path d="M322 228.7 L295.1 262.0 L348.9 262.0z"/></g><g fill="var(--m1)"><path d="M346 218 L335.8 237.8 L356.2 237.8z"/><path d="M346 227.7 L331.2 248.8 L360.8 248.8z"/><path d="M346 239.1 L327.5 262.0 L364.5 262.0z"/></g><g fill="var(--m1)"><path d="M860 206 L847.1 231.2 L872.9 231.2z"/><path d="M860 218.3 L841.2 245.2 L878.8 245.2z"/><path d="M860 232.9 L836.5 262.0 L883.5 262.0z"/></g><g fill="var(--m1)"><path d="M884 222 L874.8 240.0 L893.2 240.0z"/><path d="M884 230.8 L870.6 250.0 L897.4 250.0z"/><path d="M884 241.2 L867.2 262.0 L900.8 262.0z"/></g><g fill="var(--m1)"><path d="M908 202 L894.1 229.0 L921.9 229.0z"/><path d="M908 215.2 L887.8 244.0 L928.2 244.0z"/><path d="M908 230.8 L882.8 262.0 L933.2 262.0z"/></g><g fill="var(--m1)"><path d="M932 216 L921.4 236.7 L942.6 236.7z"/><path d="M932 226.1 L916.5 248.2 L947.5 248.2z"/><path d="M932 238.1 L912.7 262.0 L951.3 262.0z"/></g><g fill="var(--m1)"><path d="M960 224 L951.2 241.1 L968.8 241.1z"/><path d="M960 232.4 L947.2 250.6 L972.8 250.6z"/><path d="M960 242.2 L944.0 262.0 L976.0 262.0z"/></g>
+      <path d="M0 292 C160 262 300 268 430 286 C560 302 700 270 840 280 C980 290 1090 264 1200 280 V320 H0z" style="fill:var(--m1)"/>
+      <rect y="290" width="1200" height="70" fill="url(#hLake)"/>
+      <g stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".5"><path d="M420 304h70M520 312h110M700 303h60M800 316h120M330 322h60"/></g>
+      <ellipse cx="930" cy="312" rx="26" ry="5" style="fill:var(--sun)" opacity=".55"/>
+      <path d="M0 360 V330 C140 312 300 322 430 334 C520 342 560 338 640 336 C760 332 900 318 1040 326 C1120 331 1170 340 1200 336 V360z" style="fill:var(--hill)"/>
+      <g fill="var(--pine)"><path d="M60 210 L25.3 277.5 L94.7 277.5z"/><path d="M60 243.0 L9.6 315.0 L110.4 315.0z"/><path d="M60 282.0 L-3.0 360.0 L123.0 360.0z"/></g><g fill="var(--pine2)"><path d="M120 160 L73.8 250.0 L166.2 250.0z"/><path d="M120 204.0 L52.8 300.0 L187.2 300.0z"/><path d="M120 256.0 L36.0 360.0 L204.0 360.0z"/></g><g fill="var(--pine)"><path d="M190 230 L160.0 288.5 L220.0 288.5z"/><path d="M190 258.6 L146.3 321.0 L233.7 321.0z"/><path d="M190 292.4 L135.4 360.0 L244.6 360.0z"/></g><g fill="var(--pine2)"><path d="M250 265 L228.1 307.8 L271.9 307.8z"/><path d="M250 285.9 L218.1 331.5 L281.9 331.5z"/><path d="M250 310.6 L210.1 360.0 L289.9 360.0z"/></g><g fill="var(--pine2)"><path d="M1010 250 L984.6 299.5 L1035.4 299.5z"/><path d="M1010 274.2 L973.0 327.0 L1047.0 327.0z"/><path d="M1010 302.8 L963.8 360.0 L1056.2 360.0z"/></g><g fill="var(--pine)"><path d="M1070 175 L1027.3 258.2 L1112.7 258.2z"/><path d="M1070 215.7 L1007.8 304.5 L1132.2 304.5z"/><path d="M1070 263.8 L992.3 360.0 L1147.7 360.0z"/></g><g fill="var(--pine2)"><path d="M1135 210 L1100.3 277.5 L1169.7 277.5z"/><path d="M1135 243.0 L1084.6 315.0 L1185.4 315.0z"/><path d="M1135 282.0 L1072.0 360.0 L1198.0 360.0z"/></g><g fill="var(--pine)"><path d="M1185 150 L1136.5 244.5 L1233.5 244.5z"/><path d="M1185 196.2 L1114.4 297.0 L1255.6 297.0z"/><path d="M1185 250.8 L1096.8 360.0 L1273.2 360.0z"/></g>
+      <g><path d="M400 346 L459.0 253.95999999999998 L518 346z" fill="var(--tent1)"/><path d="M459.0 253.95999999999998 L473.2 346 L518 346z" fill="#000" opacity=".16"/><path d="M459.0 253.95999999999998 L444.8 346 L473.2 346z" fill="#1A1208" opacity=".78"/><path d="M396 346 h126" stroke="var(--hill2)" stroke-width="3"/></g>
+      <g><path d="M528 350 L574.0 278.24 L620 350z" fill="var(--tent2)"/><path d="M574.0 278.24 L585.0 350 L620 350z" fill="#000" opacity=".16"/><path d="M574.0 278.24 L563.0 350 L585.0 350z" fill="#1A1208" opacity=".78"/><path d="M524 350 h100" stroke="var(--hill2)" stroke-width="3"/></g>
+      <g><path d="M790 348 L854.0 248.16 L918 348z" fill="var(--tent3)"/><path d="M854.0 248.16 L869.4 348 L918 348z" fill="#000" opacity=".16"/><path d="M854.0 248.16 L838.6 348 L869.4 348z" fill="#1A1208" opacity=".78"/><path d="M786 348 h136" stroke="var(--hill2)" stroke-width="3"/></g>
+      <circle cx="690" cy="342" r="64" fill="url(#hGlow)"/>
+      <g stroke="var(--trunk)" stroke-width="5" stroke-linecap="round"><path d="M672 352l36-12M708 352l-36-12"/></g>
+      <g class="flame"><path d="M690 344 C676 336 682 322 690 312 C690 324 704 326 702 338 C700 344 694 346 690 344z" style="fill:var(--fire)"/><path d="M690 344 C684 340 686 332 690 326 C694 332 696 340 690 344z" fill="#FFE9A8"/></g>
+      <path d="M0 360 V348 C200 342 420 352 640 356 C860 352 1020 344 1200 350 V360z" style="fill:var(--hill2)"/>
+    </svg>
+    <div class="hero-text">
       <h1>준희와 은정이의 캠핑장</h1>
       <p>오토캠핑 5면 · 글램핑 3동 · 체크인 15:00, 체크아웃 11:00 (예시 정보)</p>
     </div>
-    <svg class="trees" viewBox="0 0 150 56" role="img" aria-label="소나무와 텐트 그림">
-      <path d="M10 56 22 22 34 56z" fill="var(--accent)"/><path d="M26 56 42 10 58 56z" fill="var(--accent)"/>
-      <path d="M62 56 90 22 118 56z" fill="var(--auto)"/><path d="M90 22v34" stroke="var(--bg)" stroke-width="2"/>
-      <path d="M120 56 132 24 144 56z" fill="var(--accent)"/>
-      <path d="M0 55.5h150" stroke="var(--line)" stroke-width="1.5"/>
-    </svg>
   </header>
+
+  <div class="main">
 
   <nav class="tabs" role="tablist" aria-label="화면 선택">
     <button role="tab" id="tab-book" data-tab="book" aria-selected="true">예약하기</button>
@@ -243,6 +308,7 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
     <div>관리자 <b>박준희</b></div>
     <div>입금 계좌 <b>농협 302-0123-0136-71</b> · 예금주 <b>김은정</b></div>
   </footer>
+  </div>
 </div>
 
 <div class="overlay" id="modal" hidden>
