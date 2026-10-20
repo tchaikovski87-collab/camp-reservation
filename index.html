@@ -94,6 +94,18 @@ textarea { resize: vertical; min-height: 64px; }
 .site[data-book] { cursor: pointer; }
 .site[data-book]:hover { border-color: var(--accent); }
 .tag { display: inline-block; width: fit-content; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 4px; color: var(--tc); border: 1px solid var(--tc); }
+.site { overflow: hidden; }
+.photo { margin: -16px -16px 2px; aspect-ratio: 16 / 10; background: var(--surface-2); position: relative; overflow: hidden; }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo .ph { width: 100%; height: 100%; display: grid; place-items: center; align-content: center; gap: 4px; color: var(--muted); font-size: 13px; }
+.photo .ph svg { width: 92px; height: 60px; }
+.site.unavail .photo img { filter: grayscale(.6); }
+.m-photo { margin: -20px -20px 0; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 12px 12px 0 0; background: var(--surface-2); }
+.m-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb { width: 72px; height: 46px; border-radius: 4px; object-fit: cover; display: block; background: var(--surface-2); }
+.thumb.none { display: grid; place-items: center; font-size: 11px; color: var(--muted); }
+.upl { position: relative; overflow: hidden; }
+.upl input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .site .meta { color: var(--muted); font-size: 14px; }
 .price { font-family: var(--font-mono); font-size: 14px; color: var(--muted); }
 .total { font-size: 22px; font-weight: 700; }
@@ -362,7 +374,7 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
     return '처리하지 못했습니다. 잠시 후 다시 시도해 주세요.';
   }
   function sortedSites() { return sites.slice().sort(function (a, b) { return (a.type === b.type ? 0 : a.type === 'auto' ? -1 : 1) || String(a.name).localeCompare(String(b.name), 'ko'); }); }
-  function mapSite(r) { return { id: r.id, name: r.name, type: r.type, capacity: r.capacity, priceWeekday: r.price_weekday, priceWeekend: r.price_weekend, status: r.status }; }
+  function mapSite(r) { return { id: r.id, name: r.name, type: r.type, capacity: r.capacity, priceWeekday: r.price_weekday, priceWeekend: r.price_weekend, status: r.status, photo: r.photo_url || '' }; }
   function mapRes(r) { return { id: r.code, siteId: r.site_id, siteName: r.site_name, type: r.type, name: r.guest_name, last4: r.last4, guests: r.guests, checkIn: r.check_in, checkOut: r.check_out, nights: r.nights, total: r.total, status: r.status, note: r.note, createdAt: r.created_at }; }
 
   /* ---------- tabs ---------- */
@@ -393,6 +405,13 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
   [outEl, gEl, tEl].forEach(function (el) { el.addEventListener('input', renderSites); });
   $('#search').addEventListener('submit', function (e) { e.preventDefault(); });
 
+  function photoHtml(s) {
+    if (s.photo) return '<div class="photo"><img src="' + esc(s.photo) + '" alt="' + esc(s.name) + ' 사진" loading="lazy"></div>';
+    var art = s.type === 'glamping'
+      ? '<svg viewBox="0 0 92 60" aria-hidden="true"><path d="M8 56 46 10 84 56z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M36 56V38h20v18" fill="none" stroke="currentColor" stroke-width="3"/><path d="M2 56h88" stroke="currentColor" stroke-width="3"/></svg>'
+      : '<svg viewBox="0 0 92 60" aria-hidden="true"><path d="M14 56 40 18 66 56z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M40 18 34 56M40 18 46 56" stroke="currentColor" stroke-width="2"/><rect x="66" y="40" width="20" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><path d="M2 56h88" stroke="currentColor" stroke-width="3"/></svg>';
+    return '<div class="photo"><div class="ph">' + art + '<span>사진 준비 중</span></div></div>';
+  }
   function renderSites() {
     var box = $('#sites'), sum = $('#summary');
     var inn = inEl.value, out = outEl.value, g = parseInt(gEl.value, 10) || 1, ty = tEl.value;
@@ -410,6 +429,7 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
       var total = priceFor(s, inn, out);
       if (!reason) avail++;
       html += '<article class="site ' + esc(s.type) + (reason ? ' unavail' : '') + '"' + (reason ? '' : ' data-book="' + esc(s.id) + '"') + '>' +
+        photoHtml(s) +
         '<span class="tag">' + esc(TYPE[s.type] || s.type) + '</span>' +
         '<h3>' + esc(s.name) + '</h3>' +
         '<div class="meta">최대 ' + esc(s.capacity) + '인</div>' +
@@ -430,6 +450,7 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
     current = s;
     var inn = inEl.value, out = outEl.value, n = nightsBetween(inn, out), g = parseInt(gEl.value, 10) || 1;
     $('#modalBox').innerHTML =
+      (s.photo ? '<div class="m-photo"><img src="' + esc(s.photo) + '" alt="' + esc(s.name) + ' 사진"></div>' : '') +
       '<h2 id="m-title">' + esc(s.name) + ' 예약 신청</h2>' +
       '<div class="sum">' + short(inn) + ' → ' + short(out) + ' (' + n + '박)<br><b>' + won(priceFor(s, inn, out)) + '</b> · 현장 결제</div>' +
       '<form id="bk" class="row-form" autocomplete="off">' +
@@ -543,10 +564,14 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
       }).join('') : '<tr><td>표시할 예약이 없습니다.</td></tr>';
 
     var ae = document.activeElement;
-    if (!(ae && $('#ad-sites').contains(ae))) {
+    if (!(ae && ae.dataset && ae.dataset.price && $('#ad-sites').contains(ae))) {
       $('#ad-sites').innerHTML = sites.length ?
-        '<tr><th>사이트</th><th>유형</th><th>인원</th><th>평일(원)</th><th>주말(원)</th><th>상태</th><th></th></tr>' + sortedSites().map(function (s) {
-          return '<tr><td>' + esc(s.name) + '</td><td>' + esc(TYPE[s.type] || s.type) + '</td><td>' + esc(s.capacity) + '</td>' +
+        '<tr><th>사진</th><th>사이트</th><th>유형</th><th>인원</th><th>평일(원)</th><th>주말(원)</th><th>상태</th><th></th></tr>' + sortedSites().map(function (s) {
+          return '<tr><td><div class="actions" style="align-items:center;flex-wrap:nowrap">' +
+            (s.photo ? '<img class="thumb" src="' + esc(s.photo) + '" alt="">' : '<span class="thumb none">없음</span>') +
+            '<label class="btn sm ghost upl">' + (s.photo ? '바꾸기' : '올리기') + '<input type="file" accept="image/*" data-photo="' + esc(s.id) + '" aria-label="' + esc(s.name) + ' 사진 올리기"></label>' +
+            (s.photo ? '<button class="btn sm danger" data-delphoto="' + esc(s.id) + '">사진 삭제</button>' : '') +
+            '</div></td><td>' + esc(s.name) + '</td><td>' + esc(TYPE[s.type] || s.type) + '</td><td>' + esc(s.capacity) + '</td>' +
             '<td><input class="inline-in" type="number" step="1000" min="0" value="' + esc(s.priceWeekday) + '" data-price="price_weekday" data-id="' + esc(s.id) + '"></td>' +
             '<td><input class="inline-in" type="number" step="1000" min="0" value="' + esc(s.priceWeekend) + '" data-price="price_weekend" data-id="' + esc(s.id) + '"></td>' +
             '<td><span class="pill ' + (s.status === 'closed' ? 'bad' : 'ok') + '">' + (s.status === 'closed' ? '점검중' : '운영중') + '</span></td>' +
@@ -573,10 +598,46 @@ th { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
     if (t.dataset.delres) return run(sb.from('reservations').delete().eq('code', t.dataset.delres), '예약을 삭제했습니다.');
     if (t.dataset.toggle) { var s = siteById(t.dataset.toggle); return run(sb.from('sites').update({ status: s.status === 'closed' ? 'open' : 'closed' }).eq('id', s.id), '사이트 상태를 바꿨습니다.'); }
     if (t.dataset.delsite) return run(sb.from('sites').delete().eq('id', t.dataset.delsite), '사이트를 삭제했습니다.');
+    if (t.dataset.delphoto) { var sp = siteById(t.dataset.delphoto), oldUrl = sp.photo; return run(sb.from('sites').update({ photo_url: '' }).eq('id', sp.id), '사진을 지웠습니다.').then(function (ok) { if (ok) removeStored(oldUrl); }); }
     if (t.dataset.delnote) return run(sb.from('notices').delete().eq('id', t.dataset.delnote), '공지를 삭제했습니다.');
   });
+  var BUCKET = 'site-photos';
+  function shrink(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var max = 1600, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+        var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(function (b) { b ? resolve(b) : reject(new Error('변환 실패')); }, 'image/jpeg', 0.85);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('이 형식의 사진은 열 수 없습니다. JPG나 PNG로 올려 주세요.')); };
+      img.src = url;
+    });
+  }
+  function removeStored(url) {
+    var m = String(url || '').split('/' + BUCKET + '/')[1];
+    if (m && sb) sb.storage.from(BUCKET).remove([decodeURIComponent(m.split('?')[0])]);
+  }
+  async function uploadPhoto(id, file) {
+    var s = siteById(id); if (!s) return;
+    if (!/^image\//.test(file.type)) { toast('이미지 파일만 올릴 수 있습니다.'); return; }
+    toast('사진을 올리는 중입니다…');
+    var blob;
+    try { blob = await shrink(file); } catch (err) { toast(err.message); return; }
+    var path = id + '/' + Date.now() + '.jpg';
+    var up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+    if (up.error) { toast('사진을 올리지 못했습니다. (' + (up.error.message || up.error) + ')'); return; }
+    var pub = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    var old = s.photo;
+    var ok = await run(sb.from('sites').update({ photo_url: pub }).eq('id', id), '사진을 올렸습니다.');
+    if (ok && old) removeStored(old);
+  }
   $('#ad-sites').addEventListener('change', function (e) {
-    var i = e.target; if (!i.dataset.price || !sb || !isAdmin) return;
+    var i = e.target;
+    if (i.dataset.photo) { if (!sb || !isAdmin || !i.files || !i.files[0]) return; var f = i.files[0]; i.blur(); uploadPhoto(i.dataset.photo, f); return; }
+    if (!i.dataset.price || !sb || !isAdmin) return;
     var v = parseInt(i.value, 10); if (!(v >= 0)) { renderAdmin(); return; }
     var patch = {}; patch[i.dataset.price] = v;
     run(sb.from('sites').update(patch).eq('id', i.dataset.id), '요금을 바꿨습니다.');
